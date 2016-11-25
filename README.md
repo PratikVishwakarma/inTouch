@@ -18,4 +18,9 @@ The app is in progress.
     * Firebase connection and all dependencies.
     * Picasso library for image loading.
     * All POJO which all essential for data fetching.
+    * Add SettingActivity.
+    * Transistion add on exit and enter of activities.
+    * Revers the order of feeds according to time.
+    * Add refresh and setting icon.
+    * Add refresh code.
     
