@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">inTouch_v_0.1</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+
+    <!--Firebase Keyword-->
+
+    <string name="firebase_database_news">news</string>
+    <string name="firebase_storage_newsImages">newsImages</string>
+
+</resources>
