@@ -1,5 +1,7 @@
 package com.example.pratik.intouch_v_01;
 
+import android.content.Intent;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -12,12 +14,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.transition.Slide;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +37,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,10 +55,6 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    /**
-     * The number of pages (wizard steps) to show in this demo.
-     */
-    private static int NUM_PAGES = 6;
     private List<News> newsList = new ArrayList<>();
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -58,11 +64,10 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private FirebaseDatabase database;
-    private StorageReference mStorageRef;
+    private Query queryNewRef;
+    private DatabaseReference newsRef;
 
-    /**
-     * The pager adapter, which provides the pages to the view pager widget.
-     */
+    private ImageView image_view_refresh, image_view_setting;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -77,25 +82,76 @@ public class MainActivity extends AppCompatActivity {
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
+        initializeScreen();
+
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        // Write a message to the database
+        // Database instance
         database = FirebaseDatabase.getInstance();
-        DatabaseReference newsRef = database.getReference(getString(R.string.firebase_database_news));
-        mStorageRef = FirebaseStorage.getInstance().getReference();
+        newsRef = database.getReference(getString(R.string.firebase_database_news));
+        Query queryNewRef = newsRef.orderByChild("newsid");
+        // Fetch data form Firebase
+        fetch_news(queryNewRef);
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        // Refresh the feed from server
+        image_view_refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Animation anim = AnimationUtils.loadAnimation(getApplicationContext(),
+                        R.anim.rotate_animation_refresh);
+                image_view_refresh.startAnimation(anim);
+                fetch_news(newsRef);
+            }
+        });
+
+        image_view_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Animation anim = AnimationUtils.loadAnimation(getApplicationContext(),
+//                        R.anim.rotate_animation_setting);
+//                image_view_setting.startAnimation(anim);
+                Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            }
+        });
 
 
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), newsList);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+//        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+//            @Override
+//            public void onPageSelected(int position) {
+//                invalidateOptionsMenu();
+//            }
+//        });
+
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+
+    }
+
+    public void fetch_news(Query newsRef){
         newsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 newsList.clear();
                 if(dataSnapshot.exists()){
-
                     for(DataSnapshot childdataSnapshot :dataSnapshot.getChildren()){
                         News sNews = childdataSnapshot.getValue(News.class);
                         newsList.add(sNews);
                     }
+                    Collections.reverse(newsList);
                 }
                 mSectionsPagerAdapter.notifyDataSetChanged();
                 Toast.makeText(getApplicationContext(), "Feeds updated...",Toast.LENGTH_SHORT).show();
@@ -106,37 +162,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        // Instantiate a ViewPager and a PagerAdapter.
-
-
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), newsList);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When changing pages, reset the action bar actions since they are dependent
-                // on which page is currently active. An alternative approach is to have each
-                // fragment expose actions itself (rather than the activity exposing actions),
-                // but for simplicity, the activity provides the actions in this sample.
-                invalidateOptionsMenu();
-            }
-        });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
     }
 
+    private void setupWindowAnimations() {
+        Slide slide = (Slide) TransitionInflater.from(this).inflateTransition(R.transition.activity_slide);
+        getWindow().setExitTransition(slide);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -147,9 +178,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -158,6 +186,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void initializeScreen(){
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        image_view_refresh = (ImageView) findViewById(R.id.image_view_refresh_icon);
+        image_view_setting = (ImageView) findViewById(R.id.image_view_setting_icon);
+        setupWindowAnimations();
     }
 
     /**
@@ -173,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
 //            Toast.makeText(getApplicationContext(), position+"",Toast.LENGTH_SHORT).show();
-            return NewsHolderFragment.newInstance(position+1, newsList.get(position));
+            return NewsHolderFragment.newInstance(position, newsList.get(position));
         }
 
         @Override

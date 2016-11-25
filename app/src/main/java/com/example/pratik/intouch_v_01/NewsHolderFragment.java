@@ -1,14 +1,18 @@
 package com.example.pratik.intouch_v_01;
 
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pratik.intouch_v_01.model.News;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,6 +31,7 @@ public class NewsHolderFragment extends Fragment {
     public static News mnews;
     TextView text_view_news_headline, text_view_news_content;
     ImageView image_view_new_image;
+    AppBarLayout appBarLayout_appBar;
 
     private StorageReference mStorageRef;
 
@@ -55,12 +60,19 @@ public class NewsHolderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_main, container, false);
-        text_view_news_headline = (TextView) rootView.findViewById(R.id.text_view_news_headline);
-        text_view_news_content = (TextView) rootView.findViewById(R.id.text_view_news_content);
-        image_view_new_image = (ImageView) rootView.findViewById(R.id.image_view_news_image);
+        ViewGroup rootViewMain = (ViewGroup) inflater.inflate(R.layout.activity_main, container, false);
+
+
+        initializeScreen(rootView, rootViewMain);
+
+        image_view_new_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appBarLayout_appBar.setVisibility(View.VISIBLE);
+            }
+        });
 
         StorageReference filePathRef = mStorageRef.child(getString(R.string.firebase_storage_newsImages)).child(mnews.getImage());
-
         text_view_news_headline.setText(mnews.getHeadline());
         text_view_news_content.setText(mnews.getNews_content());
 
@@ -68,7 +80,7 @@ public class NewsHolderFragment extends Fragment {
             @Override
             public void onSuccess(Uri uri) {
                 Picasso.with(getContext())
-                        .load(uri)
+                        .load(uri).placeholder(R.drawable.no_image_available)
                         .error(R.drawable.no_image_available)
                         .into(image_view_new_image);
             }
@@ -84,5 +96,13 @@ public class NewsHolderFragment extends Fragment {
 
     public int getPageNumber() {
         return mPageNumber;
+    }
+
+    public void initializeScreen(ViewGroup rootView, ViewGroup rootViewMain){
+        text_view_news_headline = (TextView) rootView.findViewById(R.id.text_view_news_headline);
+        text_view_news_content = (TextView) rootView.findViewById(R.id.text_view_news_content);
+        image_view_new_image = (ImageView) rootView.findViewById(R.id.image_view_news_image);
+        appBarLayout_appBar = (AppBarLayout) rootViewMain.findViewById(R.id.appbar);
+        appBarLayout_appBar.setVisibility(View.INVISIBLE);
     }
 }
