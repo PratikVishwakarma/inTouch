@@ -111,10 +111,8 @@ public class MainActivity extends AppCompatActivity {
         image_view_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Animation anim = AnimationUtils.loadAnimation(getApplicationContext(),
-//                        R.anim.rotate_animation_setting);
-//                image_view_setting.startAnimation(anim);
                 Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
@@ -174,6 +172,12 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.finish();
     }
 
     @Override

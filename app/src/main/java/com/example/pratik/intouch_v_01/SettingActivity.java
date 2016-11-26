@@ -19,16 +19,17 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         super.onBackPressed();
     }
 
     private void setupWindowAnimations() {
-//        Fade fade = (Fade) TransitionInflater.from(this).inflateTransition(R.transition.activity_fade);
-//        getWindow().setEnterTransition(fade);
+        Fade fade = (Fade) TransitionInflater.from(this).inflateTransition(R.transition.activity_fade);
+        getWindow().setEnterTransition(fade);
 
-        Slide slide = (Slide) TransitionInflater.from(this).inflateTransition(R.transition.activity_slide);
-        getWindow().setExitTransition(slide);
+//        Slide slide = (Slide) TransitionInflater.from(this).inflateTransition(R.transition.activity_slide);
+//        getWindow().setExitTransition(slide);
     }
 }
