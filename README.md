@@ -9,13 +9,15 @@ The app is in progress.
 
 ### Diffrent versions are as follow:
   * inTouch_v_0.1 (Start code)
+  * inTouch_v_0.2 (Setting page)
 
 ### Version contain
-  * inTouch_v_0.1 
+  * inTouch_v_0.2 
   
     This version contains the start code. 
-    * Starting code and first Activity i.e MainActivity.java
-    * Firebase connection and all dependencies.
-    * Picasso library for image loading.
-    * All POJO which all essential for data fetching.
+    * SettingActivity.
+    * Loyout of SettingActivity.
+    * Icons and PNGs.
+    * SharedPrefrences to store the current settings.
+    
     
