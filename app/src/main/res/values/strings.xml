@@ -9,4 +9,15 @@
     <string name="firebase_database_news">news</string>
     <string name="firebase_storage_newsImages">newsImages</string>
 
+    <!--Messages-->
+    <string name="message_no_connetion_available">Internet connection not available.</string>
+    <string name="message_feeds_updated">Feeds Updated</string>
+    <!--SettingActivity Strings-->
+
+    <string name="news_category_international">International</string>
+    <string name="news_category_allNews">All News</string>
+    <string name="news_category_science">Science</string>
+    <string name="news_category_business">Business</string>
+    <string name="news_category_politics">Politics</string>
+
 </resources>

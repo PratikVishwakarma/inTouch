@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                     Collections.reverse(newsList);
                 }
                 mSectionsPagerAdapter.notifyDataSetChanged();
-                Toast.makeText(getApplicationContext(), "Feeds updated...",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.message_feeds_updated),Toast.LENGTH_SHORT).show();
             }
 
             @Override
