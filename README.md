@@ -21,10 +21,10 @@ The app is in progress.
     * SharedPrefrences to store the current settings.
   
     ####Work done (07 Dec, 2016)
-    * Basic Layout Designing
-    * Add category icon
-    * Add click events on category icon
-    * Add switch for image view option
+    * Basic Layout Designing.
+    * Add category icon.
+    * Add click events on category icon.
+    * Add switch for image view option.
   
     
     
