@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.example.pratik.intouch_v_01.model.News;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,9 +30,10 @@ import com.squareup.picasso.Picasso;
 public class NewsHolderFragment extends Fragment {
 
     public static News mnews;
-    TextView text_view_news_headline, text_view_news_content;
+    TextView text_view_news_headline, text_view_news_content, text_view_news_resource;
     ImageView image_view_new_image;
     AppBarLayout appBarLayout_appBar;
+    Toolbar toolbar;
 
     private StorageReference mStorageRef;
 
@@ -65,16 +67,17 @@ public class NewsHolderFragment extends Fragment {
 
         initializeScreen(rootView, rootViewMain);
 
-        image_view_new_image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                appBarLayout_appBar.setVisibility(View.VISIBLE);
-            }
-        });
+//        image_view_new_image.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                appBarLayout_appBar.setVisibility(View.VISIBLE);
+//            }
+//        });
 
         StorageReference filePathRef = mStorageRef.child(getString(R.string.firebase_storage_newsImages)).child(mnews.getImage());
         text_view_news_headline.setText(mnews.getHeadline());
         text_view_news_content.setText(mnews.getNews_content());
+        text_view_news_resource.setText(mnews.getSource());
 
         filePathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -101,8 +104,11 @@ public class NewsHolderFragment extends Fragment {
     public void initializeScreen(ViewGroup rootView, ViewGroup rootViewMain){
         text_view_news_headline = (TextView) rootView.findViewById(R.id.text_view_news_headline);
         text_view_news_content = (TextView) rootView.findViewById(R.id.text_view_news_content);
+        text_view_news_resource = (TextView) rootView.findViewById(R.id.text_view_news_resource);
         image_view_new_image = (ImageView) rootView.findViewById(R.id.image_view_news_image);
-        appBarLayout_appBar = (AppBarLayout) rootViewMain.findViewById(R.id.appbar);
-        appBarLayout_appBar.setVisibility(View.INVISIBLE);
+//        appBarLayout_appBar = (AppBarLayout) rootViewMain.findViewById(R.id.appbar);
+//        appBarLayout_appBar.setVisibility(View.INVISIBLE);
+//        toolbar = (Toolbar) rootViewMain.findViewById(R.id.toolbar);
+//        toolbar.setVisibility(View.INVISIBLE);
     }
 }

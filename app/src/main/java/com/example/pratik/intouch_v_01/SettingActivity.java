@@ -6,14 +6,27 @@ import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionInflater;
+import android.view.View;
+import android.widget.ImageButton;
 
 public class SettingActivity extends AppCompatActivity {
 
+    ImageButton imageButton_international;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         //setupWindowAnimations();
+
+        imageButton_international = (ImageButton) findViewById(R.id.image_button_setting_international);
+
+        imageButton_international.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                imageButton_international.getResources();
+                imageButton_international.setImageResource(R.drawable.ic_business_64_active);
+            }
+        });
     }
 
     @Override
@@ -32,4 +45,6 @@ public class SettingActivity extends AppCompatActivity {
 //        Slide slide = (Slide) TransitionInflater.from(this).inflateTransition(R.transition.activity_slide);
 //        getWindow().setExitTransition(slide);
     }
+
+
 }
