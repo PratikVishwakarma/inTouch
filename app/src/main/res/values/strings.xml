@@ -19,5 +19,13 @@
     <string name="news_category_science">Science</string>
     <string name="news_category_business">Business</string>
     <string name="news_category_politics">Politics</string>
+    <string name="news_category_sports">Sports</string>
+
+    <!--SharedPrefrence Keys-->
+    <string name="key_news_category_international">international</string>
+    <string name="key_news_category_allNews">all_News</string>
+    <string name="key_news_category_science">science</string>
+    <string name="key_news_category_business">business</string>
+    <string name="key_news_category_politics">politics</string>
 
 </resources>
