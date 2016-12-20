@@ -1,38 +1,34 @@
 package com.example.pratik.intouch_v_01;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.transition.Slide;
 import android.transition.TransitionInflater;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pratik.intouch_v_01.database.NewsContract;
+import com.example.pratik.intouch_v_01.database.NewsDbHelper;
 import com.example.pratik.intouch_v_01.model.News;
-import com.google.firebase.analytics.FirebaseAnalytics;
+//import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,26 +42,17 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private List<News> newsList = new ArrayList<>();
-    /**
-     * The pager widget, which handles animation and allows swiping horizontally to access previous
-     * and next wizard steps.
-     */
-    private ViewPager mPager;
 
-    private FirebaseAnalytics mFirebaseAnalytics;
+    private NewsDbHelper newsDbHelper;
+    SQLiteDatabase db;
+    Cursor cursorData;
+
+//    private FirebaseAnalytics mFirebaseAnalytics;
     private FirebaseDatabase database;
-    private Query queryNewRef;
     private DatabaseReference newsRef;
+
 
     private ImageView image_view_refresh, image_view_setting;
 
@@ -85,17 +72,32 @@ public class MainActivity extends AppCompatActivity {
         initializeScreen();
 
         // Obtain the FirebaseAnalytics instance.
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+//        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         // Database instance
         database = FirebaseDatabase.getInstance();
         newsRef = database.getReference(getString(R.string.firebase_database_news));
-        Query queryNewRef = newsRef.orderByChild("newsid");
-        // Fetch data form Firebase
-        fetch_news(queryNewRef);
 
         // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        // Instantiate a ViewPager and a PagerAdapter.
+
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), newsList);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        newsDbHelper = new NewsDbHelper(getBaseContext());
+        db = newsDbHelper.getWritableDatabase();
+
+        if(isNetworkAvailable()){
+            // Fetch data form Firebase
+            fetch_news_form_database();
+            fetch_news_from_firebse(newsRef);
+        }else{
+            fetch_news_form_database();
+            Toast.makeText(getApplicationContext(), "Connection Error", Toast.LENGTH_SHORT).show();
+        }
 
         // Refresh the feed from server
         image_view_refresh.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 Animation anim = AnimationUtils.loadAnimation(getApplicationContext(),
                         R.anim.rotate_animation_refresh);
                 image_view_refresh.startAnimation(anim);
-                fetch_news(newsRef);
+                fetch_news_from_firebse(newsRef);
             }
         });
 
@@ -139,19 +141,40 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void fetch_news(Query newsRef){
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public void fetch_news_from_firebse(Query newsRef){
         newsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 newsList.clear();
                 if(dataSnapshot.exists()){
+                    newsDbHelper.deleteNews(db);
                     for(DataSnapshot childdataSnapshot :dataSnapshot.getChildren()){
                         News sNews = childdataSnapshot.getValue(News.class);
-                        newsList.add(sNews);
+                        ContentValues values = new ContentValues();
+                        values.put(NewsContract.NewsEntry.COLUMN_NEWSID, sNews.getNewsid()+"");
+                        values.put(NewsContract.NewsEntry.COLUMN_DATE, sNews.getDate());
+                        values.put(NewsContract.NewsEntry.COLUMN_TIME, sNews.getTime());
+                        values.put(NewsContract.NewsEntry.COLUMN_HEADLINE, sNews.getHeadline());
+                        values.put(NewsContract.NewsEntry.COLUMN_NEWS_CONTENT, sNews.getNews_content());
+                        values.put(NewsContract.NewsEntry.COLUMN_IMAGE, sNews.getImage());
+                        values.put(NewsContract.NewsEntry.COLUMN_CATEGORY, sNews.getCategory());
+                        values.put(NewsContract.NewsEntry.COLUMN_SOURCE, sNews.getSource());
+
+                        long newRowId = db.insert(NewsContract.NewsEntry.TABLE_NAME, null, values);
+                        if (newRowId == -1) {
+                            // If the row ID is -1, then there was an error with insertion.
+                            Toast.makeText(getApplicationContext(), "Error with saving news", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    Collections.reverse(newsList);
+                    fetch_news_form_database();
                 }
-                mSectionsPagerAdapter.notifyDataSetChanged();
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.message_feeds_updated),Toast.LENGTH_SHORT).show();
             }
 
@@ -192,6 +215,67 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void fetch_news_form_database(){
+        SQLiteDatabase db = newsDbHelper.getReadableDatabase();
+
+        String projection[] = {
+                NewsContract.NewsEntry.COLUMN_NEWSID,
+                NewsContract.NewsEntry.COLUMN_HEADLINE,
+                NewsContract.NewsEntry.COLUMN_NEWS_CONTENT,
+                NewsContract.NewsEntry.COLUMN_DATE,
+                NewsContract.NewsEntry.COLUMN_TIME,
+                NewsContract.NewsEntry.COLUMN_IMAGE,
+                NewsContract.NewsEntry.COLUMN_CATEGORY,
+                NewsContract.NewsEntry.COLUMN_SOURCE
+        };
+
+        cursorData = db.query(NewsContract.NewsEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                NewsContract.NewsEntry.COLUMN_NEWSID+ " DESC");
+        try{
+            if(cursorData.moveToFirst()){
+                int columnCount = cursorData.getColumnCount();
+                Log.e("FetchAllNews ", "Data present in database "+columnCount+"");
+                newsList.clear();
+                do {
+                    String headline, content, date, time, image, ncategory, source;
+                    Long newsid;
+                    int id;
+
+                    int newsIdColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_NEWSID);
+                    int contentColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_NEWS_CONTENT);
+                    int headlineColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_HEADLINE);
+                    int dateColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_DATE);
+                    int timeColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_TIME);
+                    int imageColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_IMAGE);
+                    int categoryColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_CATEGORY);
+                    int sourceColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_SOURCE);
+
+                    newsid = cursorData.getLong(newsIdColumnIndex);
+                    headline = cursorData.getString(headlineColumnIndex);
+                    content = cursorData.getString(contentColumnIndex);
+                    date = cursorData.getString(dateColumnIndex);
+                    time = cursorData.getString(timeColumnIndex);
+                    image = cursorData.getString(imageColumnIndex);
+                    ncategory = cursorData.getString(categoryColumnIndex);
+                    source = cursorData.getString(sourceColumnIndex);
+                    News newsProvider = new News(headline, content, newsid, image, date, time, ncategory, source);
+                    newsList.add(newsProvider);
+                    Collections.reverse(newsList);
+                }while (cursorData.moveToNext());
+                mSectionsPagerAdapter.notifyDataSetChanged();
+            }
+        }finally {
+            cursorData.close();
+        }
+
+    }
+
+
     public void initializeScreen(){
         mViewPager = (ViewPager) findViewById(R.id.container);
         image_view_refresh = (ImageView) findViewById(R.id.image_view_refresh_icon);
@@ -217,7 +301,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return newsList.size();
         }
 

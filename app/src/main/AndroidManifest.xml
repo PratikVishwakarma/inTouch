@@ -22,7 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+                android:authorities="com.example.pratik.intouch_v_01"
+                android:name=".database.NewsProvider"
+                android:exported="false"></provider>
         <activity android:name=".SettingActivity"></activity>
     </application>
-
 </manifest>

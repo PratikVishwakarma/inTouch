@@ -1,5 +1,6 @@
 package com.example.pratik.intouch_v_01;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,6 +80,18 @@ public class NewsHolderFragment extends Fragment {
         text_view_news_content.setText(mnews.getNews_content());
         text_view_news_resource.setText(mnews.getSource());
 
+        text_view_news_resource.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                String source_url = mnews.getSource();
+                if (!source_url.startsWith("http://") && !source_url.startsWith("https://")) {
+                    source_url= "http://"+mnews.getSource();
+                }
+                i.setData(Uri.parse(source_url));
+                startActivity(i);
+            }
+        });
         filePathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
