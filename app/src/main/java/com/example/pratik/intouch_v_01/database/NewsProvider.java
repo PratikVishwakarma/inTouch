@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import static android.R.attr.id;
+
 /**
  * Created by prati on 19-Dec-16.
  */
@@ -81,9 +83,23 @@ public class NewsProvider extends ContentProvider{
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case NEWS:
+                return insertPet(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
     }
 
+    private Uri insertPet(Uri uri, ContentValues values) {
+        SQLiteDatabase sqLiteDatabase = newsDbHelper.getWritableDatabase();
+        sqLiteDatabase.insert(NewsContract.NewsEntry.TABLE_NAME, null, values);
+        // Once we know the ID of the new row in the table,
+        // return the new URI with the ID appended to the end of it
+        return ContentUris.withAppendedId(uri, id);
+    }
     @Override
     public int delete(Uri uri, String s, String[] strings) {
         return 0;

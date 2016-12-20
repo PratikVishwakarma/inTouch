@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -92,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(isNetworkAvailable()){
             // Fetch data form Firebase
-            fetch_news_form_database();
-            fetch_news_from_firebse(newsRef);
+            fetch_news_from_database();
+            fetch_news_from_firebase(newsRef);
         }else{
-            fetch_news_form_database();
+            fetch_news_from_database();
             Toast.makeText(getApplicationContext(), "Connection Error", Toast.LENGTH_SHORT).show();
         }
 
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 Animation anim = AnimationUtils.loadAnimation(getApplicationContext(),
                         R.anim.rotate_animation_refresh);
                 image_view_refresh.startAnimation(anim);
-                fetch_news_from_firebse(newsRef);
+                fetch_news_from_firebase(newsRef);
             }
         });
 
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void fetch_news_from_firebse(Query newsRef){
+    public void fetch_news_from_firebase(Query newsRef){
         newsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -167,13 +168,14 @@ public class MainActivity extends AppCompatActivity {
                         values.put(NewsContract.NewsEntry.COLUMN_CATEGORY, sNews.getCategory());
                         values.put(NewsContract.NewsEntry.COLUMN_SOURCE, sNews.getSource());
 
-                        long newRowId = db.insert(NewsContract.NewsEntry.TABLE_NAME, null, values);
-                        if (newRowId == -1) {
-                            // If the row ID is -1, then there was an error with insertion.
-                            Toast.makeText(getApplicationContext(), "Error with saving news", Toast.LENGTH_SHORT).show();
-                        }
+                        Uri insertUri = getContentResolver().insert(NewsContract.NewsEntry.CONTENT_URI, values);
+//                        long newRowId = db.insert(NewsContract.NewsEntry.TABLE_NAME, null, values);
+//                        if (newRowId == -1) {
+//                            // If the row ID is -1, then there was an error with insertion.
+//                            Toast.makeText(getApplicationContext(), "Error with saving news", Toast.LENGTH_SHORT).show();
+//                        }
                     }
-                    fetch_news_form_database();
+                    fetch_news_from_database();
                 }
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.message_feeds_updated),Toast.LENGTH_SHORT).show();
             }
@@ -215,8 +217,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void fetch_news_form_database(){
-        SQLiteDatabase db = newsDbHelper.getReadableDatabase();
+    public void fetch_news_from_database(){
+//        SQLiteDatabase db = newsDbHelper.getReadableDatabase();
 
         String projection[] = {
                 NewsContract.NewsEntry.COLUMN_NEWSID,
@@ -229,13 +231,16 @@ public class MainActivity extends AppCompatActivity {
                 NewsContract.NewsEntry.COLUMN_SOURCE
         };
 
-        cursorData = db.query(NewsContract.NewsEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                NewsContract.NewsEntry.COLUMN_NEWSID+ " DESC");
+//        cursorData = db.query(NewsContract.NewsEntry.TABLE_NAME,
+//                projection,
+//                null,
+//                null,
+//                null,
+//                null,
+//                NewsContract.NewsEntry.COLUMN_NEWSID+ " DESC");
+        Uri uri = NewsContract.NewsEntry.CONTENT_URI;
+        cursorData = getContentResolver().query(uri, projection, null, null, null);
+
         try{
             if(cursorData.moveToFirst()){
                 int columnCount = cursorData.getColumnCount();
