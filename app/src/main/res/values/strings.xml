@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">inTouch_v_0.1</string>
+    <string name="app_name">inTouch</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
@@ -9,9 +9,6 @@
     <string name="firebase_database_news">news</string>
     <string name="firebase_storage_newsImages">newsImages</string>
 
-    <!--Messages-->
-    <string name="message_no_connetion_available">Internet connection not available.</string>
-    <string name="message_feeds_updated">Feeds Updated</string>
     <!--SettingActivity Strings-->
 
     <string name="news_category_international">International</string>
@@ -20,12 +17,31 @@
     <string name="news_category_business">Business</string>
     <string name="news_category_politics">Politics</string>
     <string name="news_category_sports">Sports</string>
+    <string name="news_category_technology">Technology</string>
+    
+    <string name="show_image">Show Image            </string>
+    <string name="categories">Categories</string>
 
     <!--SharedPrefrence Keys-->
+    <string name="key_get_news_category">getNewsCategory</string>
     <string name="key_news_category_international">international</string>
     <string name="key_news_category_allNews">all_News</string>
     <string name="key_news_category_science">science</string>
+    <string name="key_news_category_sports">sports</string>
     <string name="key_news_category_business">business</string>
     <string name="key_news_category_politics">politics</string>
+    <string name="key_news_category_technology">technology</string>
+
+    <string name="key_show_news_image">show_image_news</string>
+
+
+
+    <!--Tost messages-->
+    <string name="toast_message_network_not_available">Internet connection not available.</string>
+    <string name="toast_message_show_image">Show Image</string>
+    <string name="toast_message_dont_show_image">Do not show image</string>
+    <string name="toast_message_error_with_saving_news">Error with saving news</string>
+    <string name="toast_message_feeds_updated">Feeds Updated</string>
+    <string name="toast_message_no_data_available">No data available</string>
 
 </resources>

@@ -28,6 +28,19 @@
         <item name="android:layout_marginRight">10dp</item>
     </style>
 
+    <style name="News_category_icon_text">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#CC000000</item>
+        <item name="android:layout_marginTop">-15dp</item>
+    </style>
+
+    <style name="News_category_icon">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">#FFFFFF</item>
+    </style>
     <style name="MySwitch" parent="Theme.AppCompat.Light">
         <!-- active thumb & track color (30% transparency) -->
         <item name="colorControlActivated">@color/indigo</item>

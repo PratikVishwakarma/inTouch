@@ -3,12 +3,15 @@ package com.example.pratik.intouch_v_01;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -30,6 +33,7 @@ import com.example.pratik.intouch_v_01.database.NewsContract;
 import com.example.pratik.intouch_v_01.database.NewsDbHelper;
 import com.example.pratik.intouch_v_01.model.News;
 //import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,10 +54,13 @@ public class MainActivity extends AppCompatActivity {
     SQLiteDatabase db;
     Cursor cursorData;
 
-//    private FirebaseAnalytics mFirebaseAnalytics;
+    private static SharedPreferences sp = null;
+
+    private FirebaseAnalytics mFirebaseAnalytics;
     private FirebaseDatabase database;
     private DatabaseReference newsRef;
 
+    private static String newsCategory = null;
 
     private ImageView image_view_refresh, image_view_setting;
 
@@ -73,9 +80,13 @@ public class MainActivity extends AppCompatActivity {
         initializeScreen();
 
         // Obtain the FirebaseAnalytics instance.
-//        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         // Database instance
+
+        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        newsCategory = sp.getString(getResources().getString(R.string.key_get_news_category), getResources().getString(R.string.key_news_category_allNews));
+
         database = FirebaseDatabase.getInstance();
         newsRef = database.getReference(getString(R.string.firebase_database_news));
 
@@ -93,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
 
         if(isNetworkAvailable()){
             // Fetch data form Firebase
-            fetch_news_from_database();
+            fetch_news_from_database(newsCategory);
             fetch_news_from_firebase(newsRef);
         }else{
-            fetch_news_from_database();
-            Toast.makeText(getApplicationContext(), "Connection Error", Toast.LENGTH_SHORT).show();
+            fetch_news_from_database(newsCategory);
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_message_network_not_available), Toast.LENGTH_SHORT).show();
         }
 
         // Refresh the feed from server
@@ -149,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void fetch_news_from_firebase(Query newsRef){
+    public void  fetch_news_from_firebase(Query newsRef){
         newsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -169,13 +180,13 @@ public class MainActivity extends AppCompatActivity {
                         values.put(NewsContract.NewsEntry.COLUMN_SOURCE, sNews.getSource());
 
                         Uri insertUri = getContentResolver().insert(NewsContract.NewsEntry.CONTENT_URI, values);
+
 //                        long newRowId = db.insert(NewsContract.NewsEntry.TABLE_NAME, null, values);
-//                        if (newRowId == -1) {
-//                            // If the row ID is -1, then there was an error with insertion.
-//                            Toast.makeText(getApplicationContext(), "Error with saving news", Toast.LENGTH_SHORT).show();
-//                        }
+                        if (insertUri == null) {
+                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_message_error_with_saving_news), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    fetch_news_from_database();
+                    fetch_news_from_database(newsCategory);
                 }
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.message_feeds_updated),Toast.LENGTH_SHORT).show();
             }
@@ -217,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void fetch_news_from_database(){
+    public void fetch_news_from_database(String newsCategory){
 //        SQLiteDatabase db = newsDbHelper.getReadableDatabase();
 
         String projection[] = {
@@ -231,16 +242,9 @@ public class MainActivity extends AppCompatActivity {
                 NewsContract.NewsEntry.COLUMN_SOURCE
         };
 
-//        cursorData = db.query(NewsContract.NewsEntry.TABLE_NAME,
-//                projection,
-//                null,
-//                null,
-//                null,
-//                null,
-//                NewsContract.NewsEntry.COLUMN_NEWSID+ " DESC");
-        Uri uri = NewsContract.NewsEntry.CONTENT_URI;
+        Uri uri = Uri.withAppendedPath(NewsContract.NewsEntry.CONTENT_URI, newsCategory);
         cursorData = getContentResolver().query(uri, projection, null, null, null);
-
+        Log.e("FetchAllNews ", "Data category is "+uri.getLastPathSegment()+"");
         try{
             if(cursorData.moveToFirst()){
                 int columnCount = cursorData.getColumnCount();
@@ -249,8 +253,6 @@ public class MainActivity extends AppCompatActivity {
                 do {
                     String headline, content, date, time, image, ncategory, source;
                     Long newsid;
-                    int id;
-
                     int newsIdColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_NEWSID);
                     int contentColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_NEWS_CONTENT);
                     int headlineColumnIndex = cursorData.getColumnIndex(NewsContract.NewsEntry.COLUMN_HEADLINE);
@@ -270,9 +272,11 @@ public class MainActivity extends AppCompatActivity {
                     source = cursorData.getString(sourceColumnIndex);
                     News newsProvider = new News(headline, content, newsid, image, date, time, ncategory, source);
                     newsList.add(newsProvider);
-                    Collections.reverse(newsList);
-                }while (cursorData.moveToNext());
+                    }while (cursorData.moveToNext());
+                Collections.reverse(newsList);
                 mSectionsPagerAdapter.notifyDataSetChanged();
+            } else{
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_message_no_data_available), Toast.LENGTH_SHORT).show();
             }
         }finally {
             cursorData.close();

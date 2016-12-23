@@ -1,9 +1,11 @@
 package com.example.pratik.intouch_v_01;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
@@ -37,6 +39,8 @@ public class NewsHolderFragment extends Fragment {
     Toolbar toolbar;
 
     private StorageReference mStorageRef;
+
+    private static SharedPreferences sp = null;
 
     private int mPageNumber;
     private static final String ARG_SECTION_NUMBER = "section_number";
@@ -75,6 +79,10 @@ public class NewsHolderFragment extends Fragment {
 //            }
 //        });
 
+        sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        boolean show_image_bollean = sp.getBoolean(getResources().getString(R.string.key_show_news_image), Boolean.TRUE);
+
+
         StorageReference filePathRef = mStorageRef.child(getString(R.string.firebase_storage_newsImages)).child(mnews.getImage());
         text_view_news_headline.setText(mnews.getHeadline());
         text_view_news_content.setText(mnews.getNews_content());
@@ -92,21 +100,22 @@ public class NewsHolderFragment extends Fragment {
                 startActivity(i);
             }
         });
-        filePathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Picasso.with(getContext())
-                        .load(uri).placeholder(R.drawable.no_image_available)
-                        .error(R.drawable.no_image_available)
-                        .into(image_view_new_image);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+        if(show_image_bollean){
+            filePathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Picasso.with(getContext())
+                            .load(uri).placeholder(R.drawable.no_image_available)
+                            .error(R.drawable.no_image_available)
+                            .into(image_view_new_image);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
 
-            }
-        });
-
+                }
+            });
+        }
         return rootView;
     }
 

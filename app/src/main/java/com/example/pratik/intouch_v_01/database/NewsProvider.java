@@ -64,8 +64,13 @@ public class NewsProvider extends ContentProvider{
                 break;
 
             case NEWS_CATEGORY:
+                String lastPathSegment = uri.getLastPathSegment();
                 selection = NewsContract.NewsEntry.COLUMN_CATEGORY + "=?";
-                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                selectionArgs = new String[]{lastPathSegment};
+                if(lastPathSegment.equals("all_News")){
+                    selection = null;
+                    selectionArgs = null;
+                }
                 cursor = sqLiteDatabase.query(NewsContract.NewsEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:

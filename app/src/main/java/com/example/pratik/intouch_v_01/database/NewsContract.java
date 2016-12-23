@@ -32,5 +32,17 @@ public class NewsContract {
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_NEWS);
 
+        /**
+         * Possible values for the gender of the pet.
+         */
+        public static final String CATEGORY_SCIENCE = "science";
+        public static final String CATEGORY_TREND = "trend";
+        public static final String CATEGORY_INTERNATIONAL = "international";
+        public static final String CATEGORY_SPORTS = "sports";
+        public static final String CATEGORY_BUSINESS= "business";
+        public static final String CATEGORY_POLITICS = "politics";
+        public static final String CATEGORY_TECHNOLOGY = "technology";
+
+
     }
 }
