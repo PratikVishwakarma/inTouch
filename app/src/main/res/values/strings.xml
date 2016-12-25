@@ -1,8 +1,6 @@
 <resources>
     <string name="app_name">inTouch</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
-
 
     <!--Firebase Keyword-->
 
@@ -12,7 +10,6 @@
     <!--SettingActivity Strings-->
 
     <string name="news_category_international">International</string>
-    <string name="news_category_allNews">All News</string>
     <string name="news_category_science">Science</string>
     <string name="news_category_business">Business</string>
     <string name="news_category_politics">Politics</string>
@@ -43,5 +40,23 @@
     <string name="toast_message_error_with_saving_news">Error with saving news</string>
     <string name="toast_message_feeds_updated">Feeds Updated</string>
     <string name="toast_message_no_data_available">No data available</string>
+
+    <!--Content Description-->
+    <string name="description_news_image">Image related to the news</string>
+    <string name="description_category_allNews">Image for All News category</string>
+    <string name="description_category_international">Image for International category</string>
+    <string name="description_category_business">Image for Business category</string>
+    <string name="description_category_sports">Image for Sports category</string>
+    <string name="description_category_politics">Image for Politics category</string>
+    <string name="description_category_science">Image for Science category</string>
+    <string name="description_category_technology">Image for Technology category</string>
+
+    <string name="description_setting_image">Image for Setting</string>
+    <string name="description_refresh_image">Image for Refresh</string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">inTouch.example.com</string>
+    <string name="content_authority">com.example.pratik.intouch_v_01</string>
+
 
 </resources>

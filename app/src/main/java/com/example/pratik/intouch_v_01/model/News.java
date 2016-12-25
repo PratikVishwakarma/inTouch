@@ -1,13 +1,13 @@
 package com.example.pratik.intouch_v_01.model;
 
 /**
- * Created by prati on 20-Nov-16.
+ * Created by pratik on 20-Nov-16.
  */
 
 public class News {
 
-    public String headline, news_content, image, date, time, category, source;
-    long newsid;
+    private String headline, news_content, image, date, time, category, source;
+    private long newsid;
 
     public News() {
     }

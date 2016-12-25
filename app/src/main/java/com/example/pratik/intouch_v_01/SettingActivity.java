@@ -2,14 +2,10 @@ package com.example.pratik.intouch_v_01;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
-import android.telecom.Call;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,9 +13,9 @@ import android.widget.Toast;
 
 public class SettingActivity extends AppCompatActivity {
 
-    ImageButton imageButton_international, imageButton_politics, imageButton_science, imageButton_sports;
-    ImageButton imageButton_business, imageButton_technology;
-    SwitchCompat switchCompat_show_image;
+    private ImageButton imageButton_international, imageButton_politics, imageButton_science, imageButton_sports;
+    private ImageButton imageButton_business, imageButton_technology;
+    private SwitchCompat switchCompat_show_image;
 
     private static SharedPreferences sp = null;
     @Override
@@ -125,15 +121,7 @@ public class SettingActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    private void setupWindowAnimations() {
-        Fade fade = (Fade) TransitionInflater.from(this).inflateTransition(R.transition.activity_fade);
-        getWindow().setEnterTransition(fade);
-
-//        Slide slide = (Slide) TransitionInflater.from(this).inflateTransition(R.transition.activity_slide);
-//        getWindow().setExitTransition(slide);
-    }
-
-    public void initializeScreen(){
+    private void initializeScreen(){
         imageButton_international = (ImageButton) findViewById(R.id.image_button_setting_international);
         imageButton_science = (ImageButton) findViewById(R.id.image_button_setting_science);
         imageButton_politics = (ImageButton) findViewById(R.id.image_button_setting_politics);
@@ -157,7 +145,7 @@ public class SettingActivity extends AppCompatActivity {
 
     }
 
-    public void set_button_active(){
+    private void set_button_active(){
 
         imageButton_international.setImageResource(R.drawable.ic_international_64_inactive);
         imageButton_science.setImageResource(R.drawable.ic_science_64_inactive);
@@ -189,7 +177,7 @@ public class SettingActivity extends AppCompatActivity {
         }
     }
 
-    public void makeToast(String message){
+    private void makeToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 

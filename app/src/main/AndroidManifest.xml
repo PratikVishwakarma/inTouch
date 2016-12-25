@@ -3,8 +3,12 @@
     package="com.example.pratik.intouch_v_01">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+
 
     <application
         android:allowBackup="true"
@@ -22,10 +26,44 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
                 android:authorities="com.example.pratik.intouch_v_01"
                 android:name=".database.NewsProvider"
-                android:exported="false"></provider>
+                android:exported="false"
+                android:syncable="true">
+        </provider>
+
         <activity android:name=".SettingActivity"></activity>
+
+        <service android:name=".service.inTouchService"/>
+
+        <receiver android:name=".service.inTouchService$AlarmReceiver"/>
+
+        <service android:name=".sync.inTouchAuthenticatorService">
+
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+
+        </service>
+
+        <!-- The SyncAdapter service -->
+        <service
+            android:name=".sync.inTouchSyncService"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
     </application>
 </manifest>

@@ -2,21 +2,16 @@ package com.example.pratik.intouch_v_01;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.example.pratik.intouch_v_01.model.News;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -25,6 +20,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import static java.security.AccessController.getContext;
+
 /**
  * Created by prati on 24-Nov-16.
  */
@@ -32,11 +29,9 @@ import com.squareup.picasso.Picasso;
 
 public class NewsHolderFragment extends Fragment {
 
-    public static News mnews;
-    TextView text_view_news_headline, text_view_news_content, text_view_news_resource;
-    ImageView image_view_new_image;
-    AppBarLayout appBarLayout_appBar;
-    Toolbar toolbar;
+    private static News mnews;
+    private TextView text_view_news_headline, text_view_news_content, text_view_news_resource;
+    private ImageView image_view_new_image;
 
     private StorageReference mStorageRef;
 
@@ -72,14 +67,7 @@ public class NewsHolderFragment extends Fragment {
 
         initializeScreen(rootView, rootViewMain);
 
-//        image_view_new_image.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                appBarLayout_appBar.setVisibility(View.VISIBLE);
-//            }
-//        });
-
-        sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
         boolean show_image_bollean = sp.getBoolean(getResources().getString(R.string.key_show_news_image), Boolean.TRUE);
 
 
@@ -123,14 +111,10 @@ public class NewsHolderFragment extends Fragment {
         return mPageNumber;
     }
 
-    public void initializeScreen(ViewGroup rootView, ViewGroup rootViewMain){
+    private void initializeScreen(ViewGroup rootView, ViewGroup rootViewMain){
         text_view_news_headline = (TextView) rootView.findViewById(R.id.text_view_news_headline);
         text_view_news_content = (TextView) rootView.findViewById(R.id.text_view_news_content);
         text_view_news_resource = (TextView) rootView.findViewById(R.id.text_view_news_resource);
         image_view_new_image = (ImageView) rootView.findViewById(R.id.image_view_news_image);
-//        appBarLayout_appBar = (AppBarLayout) rootViewMain.findViewById(R.id.appbar);
-//        appBarLayout_appBar.setVisibility(View.INVISIBLE);
-//        toolbar = (Toolbar) rootViewMain.findViewById(R.id.toolbar);
-//        toolbar.setVisibility(View.INVISIBLE);
     }
 }

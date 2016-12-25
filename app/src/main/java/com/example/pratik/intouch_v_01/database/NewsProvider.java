@@ -92,13 +92,13 @@ public class NewsProvider extends ContentProvider{
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case NEWS:
-                return insertPet(uri, contentValues);
+                return insertNews(uri, contentValues);
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
     }
 
-    private Uri insertPet(Uri uri, ContentValues values) {
+    private Uri insertNews(Uri uri, ContentValues values) {
         SQLiteDatabase sqLiteDatabase = newsDbHelper.getWritableDatabase();
         sqLiteDatabase.insert(NewsContract.NewsEntry.TABLE_NAME, null, values);
         // Once we know the ID of the new row in the table,
